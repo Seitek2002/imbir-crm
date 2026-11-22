@@ -1,0 +1,1 @@
+export { ProfileAboutPage } from "./ui";

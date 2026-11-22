@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- viewport-fit=cover — рисуем под чёлкой/home-indicator сами через safe-area;
+         interactive-widget — клавиатура на Android сжимает layout, а не перекрывает его -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
+    />
+    <meta name="theme-color" content="#eaeaf0" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0c121e" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
+
+    <!-- Установка на экран «Домой»: открывается без браузерной обвязки -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Imbir" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="apple-touch-icon" href="/icon-512.png" />
+
+    <title>Imbir Keeper</title>
+    <script>
+      // Тема применяется до первого кадра, иначе при тёмной теме мелькает белый экран.
+      (function () {
+        try {
+          var raw = localStorage.getItem("imbir.settings");
+          var theme = raw ? JSON.parse(raw).state.theme : "light";
+          var dark =
+            theme === "dark" ||
+            (theme === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+          if (dark) document.documentElement.classList.add("dark");
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/app/entrypoint/main.tsx"></script>
+  </body>
+</html>

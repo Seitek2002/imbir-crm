@@ -1,0 +1,1 @@
+export { ProfileTermsPage } from "./ui";

@@ -1,0 +1,752 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+/* Устройство с мышью/тачпадом — для hover-эффектов, которые на телефоне «залипают» */
+@custom-variant pointer-fine (@media (hover: hover) and (pointer: fine));
+
+/* ── Токены ──────────────────────────────────────────────────────────────────
+   Цвета сняты с кадров видео. Семантические переменные переопределяются
+   в .dark, поэтому в компонентах пишем bg-surface/text-fg и не думаем о теме. */
+
+:root {
+  --bg: #eaeaf0;
+  --surface: #ffffff;
+  --surface-2: #f1f1f5;
+  --surface-3: #e4e4ea;
+  --elevated: #ffffff;
+  --fg: #0b0b0f;
+  --fg-2: #6d6d76;
+  --fg-3: #a5a5ae;
+  --separator: rgb(60 60 67 / 0.13);
+  --primary-soft: #ffe5ee;
+  --chat-bg: #c3d4da;
+  --chat-bg-2: #d2dede;
+  --bubble-in: #ffffff;
+  --bubble-out: #dafbc0;
+  --bubble-out-meta: #4f9d5c;
+  --glass: rgb(255 255 255 / 0.72);
+  --glass-border: rgb(255 255 255 / 0.65);
+  --shadow-color: 220 20% 20%;
+  --skeleton: #e6e6ec;
+  --skeleton-shine: #f4f4f8;
+}
+
+.dark {
+  --bg: #0c121e;
+  --surface: #182430;
+  --surface-2: #1f2c3a;
+  --surface-3: #2a3847;
+  --elevated: #1c2836;
+  --fg: #f1f4f8;
+  --fg-2: #8d99a8;
+  --fg-3: #5f6b7b;
+  --separator: rgb(255 255 255 / 0.08);
+  --primary-soft: rgb(252 36 108 / 0.16);
+  --chat-bg: #0e1621;
+  --chat-bg-2: #111b27;
+  --bubble-in: #1e2c3a;
+  --bubble-out: #2a4a35;
+  --bubble-out-meta: #7fc48d;
+  --glass: rgb(28 40 54 / 0.72);
+  --glass-border: rgb(255 255 255 / 0.08);
+  --shadow-color: 220 40% 2%;
+  --skeleton: #1f2c3a;
+  --skeleton-shine: #283747;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text",
+    "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-elevated: var(--elevated);
+  --color-fg: var(--fg);
+  --color-fg-2: var(--fg-2);
+  --color-fg-3: var(--fg-3);
+  --color-separator: var(--separator);
+  --color-primary-soft: var(--primary-soft);
+  --color-chat: var(--chat-bg);
+  --color-bubble-in: var(--bubble-in);
+  --color-bubble-out: var(--bubble-out);
+  --color-bubble-out-meta: var(--bubble-out-meta);
+  --color-glass: var(--glass);
+  --color-glass-border: var(--glass-border);
+
+  --color-primary: #fc246c;
+  --color-primary-press: #e2135a;
+  --color-danger: #fc302a;
+  --color-success: #06ae72;
+  --color-orange: #fc8400;
+  --color-blue: #3c7efc;
+  --color-purple: #6c42fc;
+  --color-teal: #18baba;
+  --color-indigo: #5856d6;
+  --color-gray-icon: #8e8e93;
+  --color-rail: #14161d;
+
+  --ease-ios: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-pop-in: pop-in 260ms var(--ease-spring) both;
+  --animate-fade-in: fade-in 220ms ease both;
+  --animate-fade-up: fade-up 320ms var(--ease-out-expo) both;
+  --animate-message-in: message-in 300ms var(--ease-out-expo) both;
+  --animate-shake: shake 420ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  --animate-spin-slow: spin 1.2s linear infinite;
+}
+
+/* ── База: убираем всё, что выдаёт «сайт в браузере» ─────────────────────── */
+
+html {
+  font-size: 16px;
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Десктоп с мышью — чуть плотнее, как у настольных приложений.
+   Все размеры в rem, поэтому интерфейс масштабируется целиком. */
+@media (min-width: 1024px) and (pointer: fine) {
+  html {
+    font-size: 15px;
+  }
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Двойной тап не зумит, нет задержки клика */
+  touch-action: manipulation;
+  /* Интерфейс не выделяется, как в нативных приложениях. Текст, который
+     нужно копировать, помечается .selectable */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+#root {
+  /* Высота видимой области с учётом экранной клавиатуры (ставит useAppHeight) */
+  height: var(--app-height, 100dvh);
+}
+
+input,
+textarea,
+[contenteditable="true"],
+.selectable {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+
+/* На десктопе текст сообщений можно выделять мышью, на телефоне — копирование через меню */
+@media (pointer: fine) {
+  .selectable-desktop {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+}
+
+img {
+  -webkit-user-drag: none;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-primary) 60%, transparent);
+  outline-offset: 2px;
+}
+
+/* У полей ввода своя подсветка на обёртке — системная рамка не нужна */
+input:focus-visible,
+textarea:focus-visible,
+[contenteditable="true"]:focus-visible {
+  outline: none;
+}
+
+/* iOS приближает страницу при фокусе на поле со шрифтом меньше 16px */
+@media (max-width: 1023px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  [contenteditable="true"] {
+    font-size: max(16px, 1em);
+  }
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+}
+
+/* Скроллбары: на тач-устройствах скрыты, на десктопе — тонкие, как в системе.
+   В слое base, чтобы утилита scrollbar-none могла их переопределить. */
+@layer base {
+  @media (pointer: coarse) {
+    * {
+      scrollbar-width: none;
+    }
+    *::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  @media (pointer: fine) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: color-mix(in srgb, var(--fg) 18%, transparent)
+        transparent;
+    }
+  }
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Скролл-контейнер с «нативной» инерцией, не протаскивающий жест наружу */
+@utility scroll-area {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+@utility glass {
+  background: var(--glass);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+}
+
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@utility mb-safe {
+  margin-bottom: env(safe-area-inset-bottom);
+}
+
+/* Нажатие: лёгкое «проседание» кнопки, как у iOS-контролов */
+@utility pressable {
+  transition:
+    transform 160ms var(--ease-out-expo),
+    opacity 160ms ease,
+    background-color 160ms ease;
+  &:active:not(:disabled) {
+    transform: scale(0.96);
+  }
+}
+
+@utility shadow-soft {
+  box-shadow:
+    0 1px 2px hsl(var(--shadow-color) / 0.06),
+    0 8px 24px -6px hsl(var(--shadow-color) / 0.12);
+}
+
+@utility shadow-float {
+  box-shadow:
+    0 2px 6px hsl(var(--shadow-color) / 0.08),
+    0 16px 40px -8px hsl(var(--shadow-color) / 0.22);
+}
+
+/* ── Keyframes ──────────────────────────────────────────────────────────── */
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@keyframes message-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+}
+
+@keyframes shake {
+  10%,
+  90% {
+    transform: translateX(-2px);
+  }
+  20%,
+  80% {
+    transform: translateX(4px);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-7px);
+  }
+  40%,
+  60% {
+    transform: translateX(7px);
+  }
+}
+
+@keyframes skeleton-shine {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+@keyframes typing-dot {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+  30% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}
+
+@keyframes record-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(252 48 42 / 0.45);
+  }
+  100% {
+    box-shadow: 0 0 0 14px rgb(252 48 42 / 0);
+  }
+}
+
+@keyframes faceid-scan {
+  0% {
+    transform: translateY(-34px);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(34px);
+    opacity: 0;
+  }
+}
+
+@keyframes story-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes cal-in-l {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+
+@keyframes cal-in-r {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+}
+
+@keyframes badge-bump {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.28);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--skeleton) 0%,
+    var(--skeleton) 35%,
+    var(--skeleton-shine) 50%,
+    var(--skeleton) 65%,
+    var(--skeleton) 100%
+  );
+  background-size: 300% 100%;
+  animation: skeleton-shine 1.4s ease-in-out infinite;
+}
+
+/* Разметка описания задачи (редактор и просмотр) */
+.rich-text h3 {
+  margin: 0.9em 0 0.35em;
+  font-size: 1.1em;
+  font-weight: 700;
+}
+.rich-text h3:first-child {
+  margin-top: 0;
+}
+.rich-text p {
+  margin: 0.35em 0;
+}
+.rich-text ul,
+.rich-text ol {
+  margin: 0.35em 0;
+  padding-left: 1.35em;
+}
+.rich-text ul {
+  list-style: disc;
+}
+.rich-text ol {
+  list-style: decimal;
+}
+.rich-text li {
+  margin: 0.15em 0;
+}
+.rich-text li::marker {
+  color: var(--color-primary);
+}
+.rich-text a {
+  color: var(--color-blue);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-all;
+}
+
+/* Обои переписки: мягкий градиент и россыпь точек */
+.chat-wallpaper {
+  background-color: var(--chat-bg);
+  background-image:
+    radial-gradient(
+      circle at 18% 22%,
+      rgb(255 255 255 / 0.35) 0 1.5px,
+      transparent 2.5px
+    ),
+    radial-gradient(
+      circle at 68% 64%,
+      rgb(255 255 255 / 0.3) 0 1.5px,
+      transparent 2.5px
+    ),
+    linear-gradient(180deg, var(--chat-bg) 0%, var(--chat-bg-2) 100%);
+  background-size:
+    46px 46px,
+    62px 62px,
+    100% 100%;
+  background-attachment: local, local, fixed;
+}
+.dark .chat-wallpaper {
+  background-image:
+    radial-gradient(
+      circle at 18% 22%,
+      rgb(255 255 255 / 0.05) 0 1.5px,
+      transparent 2.5px
+    ),
+    radial-gradient(
+      circle at 68% 64%,
+      rgb(255 255 255 / 0.04) 0 1.5px,
+      transparent 2.5px
+    ),
+    linear-gradient(180deg, var(--chat-bg) 0%, var(--chat-bg-2) 100%);
+}
+
+.typing-dot {
+  animation: typing-dot 1.2s infinite ease-in-out;
+}
+.typing-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.typing-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.badge-bump {
+  animation: badge-bump 380ms var(--ease-spring);
+}
+
+/* ── Модалки (тот же приём, что в imbir-nextjs) ─────────────────────────────
+   Появление — через @starting-style, закрытие — data-state="closed"
+   + таймер на длительность анимации перед размонтированием. */
+
+.modal-overlay {
+  opacity: 1;
+  transition: opacity 200ms ease;
+}
+@starting-style {
+  .modal-overlay {
+    opacity: 0;
+  }
+}
+.modal-overlay[data-state="closed"] {
+  opacity: 0;
+}
+
+.modal-panel {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  transition:
+    opacity 200ms ease,
+    transform 200ms ease;
+}
+@starting-style {
+  .modal-panel {
+    opacity: 0;
+    transform: scale(0.95) translateY(6px);
+  }
+}
+.modal-panel[data-state="closed"] {
+  opacity: 0;
+  transform: scale(0.95) translateY(6px);
+}
+
+/* Bottom-sheet (мобильная версия) */
+.modal-sheet {
+  opacity: 1;
+  transform: translateY(var(--drag-y, 0px));
+  transition:
+    opacity 200ms ease,
+    transform 300ms var(--ease-out-expo);
+}
+@starting-style {
+  .modal-sheet {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+.modal-sheet[data-state="closed"] {
+  opacity: 0;
+  transform: translateY(100%);
+}
+.modal-sheet[data-dragging="true"] {
+  transition: none;
+}
+
+/* Контекстное меню / поповер — раскрывается из точки нажатия */
+.popover {
+  opacity: 1;
+  transform: scale(1);
+  transition:
+    opacity 160ms ease,
+    transform 220ms var(--ease-spring);
+}
+@starting-style {
+  .popover {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+}
+.popover[data-state="closed"] {
+  opacity: 0;
+  transform: scale(0.92);
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease;
+}
+
+/* Баннер уведомления сверху, как системный пуш */
+.banner {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition:
+    opacity 240ms ease,
+    transform 420ms var(--ease-spring);
+}
+@starting-style {
+  .banner {
+    opacity: 0;
+    transform: translateY(-110%) scale(0.96);
+  }
+}
+.banner[data-state="closed"] {
+  opacity: 0;
+  transform: translateY(-110%) scale(0.96);
+  transition:
+    opacity 200ms ease,
+    transform 260ms var(--ease-ios);
+}
+
+/* ── Переходы между экранами (View Transitions API) ──────────────────────────
+   data-vt на <html> выставляет useScreenTransition перед сменой маршрута:
+   push/pop — iOS-навигация «вглубь/назад», up/down — модальный экран,
+   tab — переключение вкладок, detail — смена правой панели на десктопе. */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 380ms;
+  animation-timing-function: var(--ease-ios);
+  animation-fill-mode: both;
+  mix-blend-mode: normal;
+}
+
+html[data-vt="push"]::view-transition-old(root) {
+  animation-name: vt-push-old;
+}
+html[data-vt="push"]::view-transition-new(root) {
+  animation-name: vt-push-new;
+  box-shadow: -12px 0 32px rgb(0 0 0 / 0.14);
+}
+html[data-vt="pop"]::view-transition-old(root) {
+  animation-name: vt-pop-old;
+  z-index: 2;
+  box-shadow: -12px 0 32px rgb(0 0 0 / 0.14);
+}
+html[data-vt="pop"]::view-transition-new(root) {
+  animation-name: vt-pop-new;
+}
+
+html[data-vt="up"]::view-transition-old(root) {
+  animation-name: vt-hold;
+}
+html[data-vt="up"]::view-transition-new(root) {
+  animation-name: vt-up-new;
+  animation-duration: 420ms;
+}
+html[data-vt="down"]::view-transition-old(root) {
+  animation-name: vt-down-old;
+  z-index: 2;
+}
+html[data-vt="down"]::view-transition-new(root) {
+  animation-name: vt-hold;
+}
+
+html[data-vt="tab"]::view-transition-old(root) {
+  animation: vt-fade-out 160ms ease both;
+}
+html[data-vt="tab"]::view-transition-new(root) {
+  animation: vt-fade-in 200ms ease both;
+}
+
+html[data-vt="fade"]::view-transition-old(root) {
+  animation: vt-fade-out 220ms ease both;
+}
+html[data-vt="fade"]::view-transition-new(root) {
+  animation: vt-fade-in 280ms ease both;
+}
+
+html[data-vt="detail"]::view-transition-old(root),
+html[data-vt="detail"]::view-transition-new(root) {
+  animation: none;
+}
+html[data-vt="detail"]::view-transition-old(detail) {
+  animation: vt-fade-out 140ms ease both;
+}
+html[data-vt="detail"]::view-transition-new(detail) {
+  animation: vt-detail-in 300ms var(--ease-out-expo) both;
+}
+
+::view-transition-group(tabbar) {
+  animation-duration: 300ms;
+  animation-timing-function: var(--ease-ios);
+}
+
+@keyframes vt-push-new {
+  from {
+    transform: translateX(100%);
+  }
+}
+@keyframes vt-push-old {
+  to {
+    transform: translateX(-28%);
+    filter: brightness(0.9);
+  }
+}
+@keyframes vt-pop-new {
+  from {
+    transform: translateX(-28%);
+    filter: brightness(0.9);
+  }
+}
+@keyframes vt-pop-old {
+  to {
+    transform: translateX(100%);
+  }
+}
+@keyframes vt-up-new {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes vt-down-old {
+  to {
+    transform: translateY(100%);
+  }
+}
+@keyframes vt-hold {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes vt-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes vt-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes vt-detail-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.995);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after,
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}
