@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -p . && vite build",
-    "build:pages": "tsc -p . && vite build --base=/imbir-crm-demo/",
-    "deploy": "npm run build:pages && gh-pages -d dist -b gh-pages --nojekyll -r https://github.com/Seitek2002/imbir-crm-demo.git -u \"Seitek2002 <71016647+Seitek2002@users.noreply.github.com>\" -m \"Deploy demo\"",
+    "build:pages": "tsc -p . && vite build --base=/imbir-crm/",
+    "deploy": "npm run build:pages && gh-pages -d dist -b gh-pages --nojekyll -u \"Seitek2002 <71016647+Seitek2002@users.noreply.github.com>\" -m \"Deploy demo\"",
     "preview": "vite preview",
     "typecheck": "tsc -p .",
     "lint": "eslint",
