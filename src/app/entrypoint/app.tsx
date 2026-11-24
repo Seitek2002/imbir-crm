@@ -4,7 +4,7 @@ import { LockScreen } from "@/features/app-lock";
 import { ThemeSync } from "@/features/app-settings";
 import { RealtimeBridge } from "@/features/realtime-bridge";
 
-import { useAppHeight } from "@/shared/lib";
+import { installTapHaptics, useAppHeight } from "@/shared/lib";
 import { Toaster } from "@/shared/ui";
 
 import { AppRoutes } from "../routes/router";
@@ -29,9 +29,12 @@ function useNativeFeel() {
     };
     document.addEventListener("contextmenu", onContextMenu);
     document.addEventListener("dragstart", onDragStart);
+    // Виброотклик на нажатие любой кнопки
+    const removeTapHaptics = installTapHaptics();
     return () => {
       document.removeEventListener("contextmenu", onContextMenu);
       document.removeEventListener("dragstart", onDragStart);
+      removeTapHaptics();
     };
   }, []);
 }

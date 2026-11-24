@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { type Location, useLocation, useNavigationType } from "react-router";
 
-import { isDesktopNow, prefersReducedMotion } from "@/shared/lib";
+import { haptic, isDesktopNow, prefersReducedMotion } from "@/shared/lib";
 
 type Kind = "detail" | "down" | "fade" | "none" | "pop" | "push" | "tab" | "up";
 
@@ -54,6 +54,9 @@ export function useScreenTransition(): Location {
     const from = prevPath.current;
     const to = location.pathname;
     prevPath.current = to;
+    // Отклик на смену экрана — в том числе по «Назад» браузера и после редиректов.
+    // Если переход вызван нажатием, haptic склеит их в один тик.
+    if (from !== to) haptic("light");
     const kind = transitionKind(from, to, navType);
     const doc = document as DocWithVT;
 

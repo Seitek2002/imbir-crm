@@ -44,7 +44,6 @@ export function LoginForm() {
     login.mutate(
       { email, password, remember },
       {
-        onSuccess: () => haptic("success"),
         onError: () => fail(t.auth.invalid),
       },
     );

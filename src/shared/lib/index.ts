@@ -1,6 +1,6 @@
 export { cn } from "./cn";
 export { uid } from "./id";
-export { haptic } from "./haptics";
+export { haptic, installTapHaptics, type HapticKind } from "./haptics";
 export { sanitizeHtml, htmlToText } from "./sanitize-html";
 export { compressImage, readFileAsDataUrl } from "./image";
 export * from "./hooks";

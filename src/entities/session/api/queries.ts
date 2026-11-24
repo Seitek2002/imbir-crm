@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { type LoginResponse, api, qk, stopSimulation } from "@/shared/api";
+import { haptic } from "@/shared/lib";
 import { useSession } from "@/shared/model";
 
 export function useLogin() {
@@ -14,6 +15,9 @@ export function useLogin() {
       }),
     meta: { silent: true },
     onSuccess: (res, v) => {
+      // Здесь, а не в форме: после входа форма сразу размонтируется
+      // из-за редиректа, и колбэки mutate() у неё уже не вызываются
+      haptic("success");
       qc.clear();
       qc.setQueryData(qk.me, res.user);
       setSession({
