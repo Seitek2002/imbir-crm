@@ -10,7 +10,6 @@ import {
   Plus,
   Search,
   Sun,
-  UserRound,
 } from "lucide-react";
 
 import { usePalette } from "@/features/global-search";
@@ -25,12 +24,18 @@ import { CountBadge, Kbd, Logo, MOD_KEY } from "@/shared/ui";
 import { NAV_ROOTS, type NavKey, activeSection } from "../config/nav";
 import { useNavBadges } from "../lib/use-badges";
 
-const ICONS: Record<NavKey, React.ReactNode> = {
+// Профиль открывается по плашке с аватаркой внизу, отдельного пункта нет
+type RailKey = Exclude<NavKey, "profile">;
+
+const ICONS: Record<RailKey, React.ReactNode> = {
   chats: <MessagesSquare />,
   tasks: <CircleCheck />,
   notifications: <Bell />,
-  profile: <UserRound />,
 };
+
+const RAIL_ITEMS = NAV_ROOTS.filter(
+  (r): r is { key: RailKey; path: string } => r.key !== "profile",
+);
 
 /**
  * Боковая панель десктопа. Разворачивается с подписями разделов,
@@ -50,12 +55,12 @@ export function Sidebar() {
   const { data: me } = useMe();
   const dark = resolveDark(theme);
 
-  const labels: Record<NavKey, string> = {
+  const labels: Record<RailKey, string> = {
     chats: t.nav.chats,
     tasks: t.nav.tasks,
     notifications: t.nav.notifications,
-    profile: t.nav.profile,
   };
+  const profileActive = active === "profile";
 
   const item = (
     key: string,
@@ -150,7 +155,7 @@ export function Sidebar() {
       <div className="my-3 h-px bg-white/[0.07]" />
 
       <nav className="flex flex-col gap-1">
-        {NAV_ROOTS.map((r) =>
+        {RAIL_ITEMS.map((r) =>
           item(r.key, ICONS[r.key], labels[r.key], () => navigate(r.path), {
             active: r.key === active,
             badge: badges[r.key],
@@ -174,9 +179,22 @@ export function Sidebar() {
         <button
           type="button"
           onClick={() => navigate("/profile")}
-          className="mt-2 flex items-center gap-3 rounded-xl p-1.5 text-left transition-colors hover:bg-white/[0.06]"
+          aria-label={t.nav.profile}
+          aria-current={profileActive ? "page" : undefined}
+          className={cn(
+            "group/item relative mt-2 flex items-center gap-3 rounded-xl p-1.5 text-left transition-colors",
+            profileActive ? "bg-primary/15" : "hover:bg-white/[0.06]",
+          )}
         >
+          {profileActive && (
+            <span className="absolute -left-3 top-2.5 h-7 w-1 rounded-r-full bg-primary" />
+          )}
           <UserAvatar user={me} size={2.25} withPresence />
+          {!expanded && (
+            <span className="pointer-events-none absolute left-full z-50 ml-3 -translate-x-1 whitespace-nowrap rounded-lg bg-[#2a2d38] px-2.5 py-1.5 text-[0.8125rem] text-white opacity-0 shadow-float transition-all duration-150 group-hover/item:translate-x-0 group-hover/item:opacity-100">
+              {t.nav.profile}
+            </span>
+          )}
           <span
             className={cn(
               "min-w-0 transition-opacity",
