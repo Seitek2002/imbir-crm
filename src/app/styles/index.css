@@ -652,18 +652,30 @@ html[data-vt="down"]::view-transition-new(root) {
   animation-name: vt-hold;
 }
 
-html[data-vt="tab"]::view-transition-old(root) {
-  animation: vt-fade-out 160ms ease both;
-}
-html[data-vt="tab"]::view-transition-new(root) {
-  animation: vt-fade-in 200ms ease both;
-}
-
-html[data-vt="fade"]::view-transition-old(root) {
-  animation: vt-fade-out 220ms ease both;
-}
+/* Перекрёстное затухание (вкладки, вход/выход). Оба снимка — с одинаковыми
+   длительностью и кривой и в режиме plus-lighter: тогда в каждый момент их
+   непрозрачности складываются ровно в 100%, и одинаковые на обоих экранах
+   места (тёмная боковая панель) не становятся полупрозрачными. Иначе сквозь
+   них просвечивает фон страницы — в светлой теме это была заметная вспышка. */
+html[data-vt="tab"]::view-transition-old(root),
+html[data-vt="tab"]::view-transition-new(root),
+html[data-vt="fade"]::view-transition-old(root),
 html[data-vt="fade"]::view-transition-new(root) {
-  animation: vt-fade-in 280ms ease both;
+  animation-duration: 200ms;
+  animation-timing-function: ease;
+  mix-blend-mode: plus-lighter;
+}
+html[data-vt="fade"]::view-transition-old(root),
+html[data-vt="fade"]::view-transition-new(root) {
+  animation-duration: 260ms;
+}
+html[data-vt="tab"]::view-transition-old(root),
+html[data-vt="fade"]::view-transition-old(root) {
+  animation-name: vt-fade-out;
+}
+html[data-vt="tab"]::view-transition-new(root),
+html[data-vt="fade"]::view-transition-new(root) {
+  animation-name: vt-fade-in;
 }
 
 html[data-vt="detail"]::view-transition-old(root),
